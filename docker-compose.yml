@@ -14,14 +14,14 @@ services:
     volumes:
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
-  # NoSQL Document Database for High-Velocity Sensor Storage
+  # Upgraded NoSQL Document Database (Production LTS Version)
   mongo-db:
-    image: mongo:6.0
+    image: mongo:7.0
     container_name: mongo_logs_node
     ports:
       - "27017:27017"
 
-  # Node.js Front-Facing API Gateway Layer
+  # Node.js Front-Facing API Gateway Layer (LTS Node)
   ingestion-gateway:
     build: ./ingestion-service
     container_name: node_ingestion_gateway
@@ -34,7 +34,6 @@ services:
   analytics-processor:
     build: ./analytics-service
     container_name: python_analytics_processor
-    # REMOVED ports configuration array to completely protect the internal boundary interface
     depends_on:
       - mongo-db
 
