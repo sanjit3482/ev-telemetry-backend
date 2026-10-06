@@ -27,8 +27,11 @@ services:
     container_name: node_ingestion_gateway
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     depends_on:
       - postgres-db
+
 
   # Python Analytics Processing Cluster Node (Internal Mesh Only)
   analytics-processor:
