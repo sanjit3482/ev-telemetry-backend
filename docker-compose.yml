@@ -30,12 +30,11 @@ services:
     depends_on:
       - postgres-db
 
-  # Python Analytics Processing Cluster Node
+  # Python Analytics Processing Cluster Node (Internal Mesh Only)
   analytics-processor:
     build: ./analytics-service
     container_name: python_analytics_processor
-    ports:
-      - "8000:8000"
+    # REMOVED ports configuration array to completely protect the internal boundary interface
     depends_on:
       - mongo-db
 
