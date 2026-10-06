@@ -24,14 +24,14 @@ Use code with caution.
 4. **Analytical Rules Processing Layer (`analytics-service/`):** A Python FastAPI engine executing real-time thermal threshold rules (≥ 45.0°C ceiling) to catch battery over-heating risks, dynamically logging metadata tags before persistence.
 5. **NoSQL Persistence Tier:** A production-supported MongoDB 7.0 document cluster logging structural telemetry payloads securely.
 
-## ⚡ Production-Grade System Optimization Features
+## Production-Grade System Optimization Features
 
 * **Complete Fault-Cascading Error Propagation:** Eliminated false boundary acknowledgments by transforming the edge gateway into a synchronous proxy engine. Telemetry tracking status returns a `200 Success` only when the underlying NoSQL storage layer explicitly verifies a successful data save.
 * **Network Perimeter Isolation:** Stripped public ports entirely from internal computation modules. The analytical service is unreachable by external network hosts, routing query paths securely through an API Gateway Proxy structural interface.
 * **Transactional Idempotency Protection:** Enforced strict protection against duplicate network retry bursts. Telemetry streams generate a unique UUID per distinct physical sample reading, which is monitored by a `Unique Index Constraint` right inside MongoDB to reject duplicate writes at the data boundary without data corruption.
 * **Out-Of-Memory (OOM) Protection Matrix:** Optimized data summarization endpoints by entirely eliminating the load of massive document sets into application RAM. Calculated analytics are calculated natively within MongoDB using high-performance **Aggregation Pipelines** over a bounded 24-hour time window.
 
-## 🛠️ Unified System Component Topology
+## Unified System Component Topology
 
 * **Edge Transport Layer:** Node.js 20 (LTS Alpine Runtime Environment), Express Engine
 * **Computational Processing:** Python 3.10-slim, FastAPI Framework, Pydantic Schema Auditing
