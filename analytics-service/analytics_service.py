@@ -1,29 +1,31 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 from datetime import datetime, timedelta
 
 app = FastAPI(title="EV Telemetry Processing & Analytics API")
 
-# Resilient internal MongoDB client pooling
 client = MongoClient("mongodb://mongo-db:27017/", maxPoolSize=50, waitQueueTimeoutMS=5000)
 db = client["ev_analytics_db"]
 collection = db["processed_telemetry"]
 
+# 🚨 ENFORCE IDEMPOTENCY: Create a unique database index constraint on startup
+# This acts as an iron shield preventing identical duplicate events from writing twice
+collection.create_index("event_id", unique=True)
+
 class ValidatedPayload(BaseModel):
+    event_id: str = Field(..., min_length=36, max_length=36) # Rigid UUID character validation
     vehicle_id: str = Field(..., min_length=3, max_length=50)
     speed_kmh: float = Field(..., ge=0.0, le=300.0)
     battery_percentage: float = Field(..., ge=0.0, le=100.0)
     battery_temp_celsius: float = Field(..., ge=-40.0, le=150.0)
 
-# POST API: Receives and processes streaming car data from Gateway
 @app.post("/worker/process")
 async def process_metrics(data: ValidatedPayload):
     try:
         log_doc = data.model_dump()
         log_doc["processed_at"] = datetime.utcnow()
         
-        # Enforce explicit thermal threat rules (>= 45.0°C Safety Ceiling)
         if data.battery_temp_celsius >= 45.0:
             log_doc["alert_level"] = "CRITICAL"
         else:
@@ -31,34 +33,30 @@ async def process_metrics(data: ValidatedPayload):
             
         collection.insert_one(log_doc)
         return {"status": "persisted", "alert": log_doc["alert_level"]}
+        
+    except errors.DuplicateKeyError:
+        # Catch duplicate retries gracefully at the database constraint boundary
+        # Return a 200/201 equivalent because the data is already safe in our storage vault
+        return {"status": "ignored", "message": "Duplicate event payload detected and dropped safely."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database write failure: {str(e)}")
 
-# GET API: Historical Data Query Route (Bounded and Paged)
 @app.get("/api/telemetry/history")
 async def get_vehicle_history(limit: int = 10):
     try:
-        # Enforce maximum safety bounds on limit parameters
         safety_limit = min(max(limit, 1), 100)
         logs = list(collection.find({}, {"_id": 0}).sort("processed_at", -1).limit(safety_limit))
         return {"total_records_returned": len(logs), "history": logs}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# GET API: Low-Memory Aggregation Pipeline Route (Amazon-Scale Optimization)
 @app.get("/api/telemetry/analytics")
 async def get_fleet_analytics():
     try:
-        # Step 1: Bounded Time Window - Look back at data from the past 24 hours
         time_boundary = datetime.utcnow() - timedelta(hours=24)
         
-        # Step 2: Native MongoDB Aggregation Pipeline Engine execution
         pipeline = [
-            {
-                "$match": {
-                    "processed_at": {"$gte": time_boundary}
-                }
-            },
+            {"$match": {"processed_at": {"$gte": time_boundary}}},
             {
                 "$group": {
                     "_id": None,
