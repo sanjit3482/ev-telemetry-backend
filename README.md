@@ -1,60 +1,60 @@
-# Real-Time EV Telemetry Ingestion Pipeline
+markdown
+# Distributed Real-Time EV Telemetry Microservice Ingestion Mesh
 
-A high-performance, decoupled backend data pipeline designed to ingest, validate, and monitor streaming data packets from Electric Vehicle (EV) internal sensors. Built using a microservices-inspired architecture with **Python**, **FastAPI**, and **MongoDB Atlas**.
+A highly performant, containerized, and decoupled backend data infrastructure pipeline engineered to ingest, validate, and compute real-time analytical metrics from streaming high-frequency Electric Vehicle (EV) sensor networks. Built using an enterprise microservices topology running five synchronized application and database containers within an isolated local network mesh.
 
-## System Architecture & Data Flow
+## System Architecture & Data Flow Mesh
 
-[ Mock EV Client ]
-│  (High-Frequency Simulated Telemetry Packets)
-▼
-[ HTTP POST Request ] ──► [ FastAPI Ingestion Gateway Server ]
+Use code with caution.
+[ Container 1: Isolated Client Simulator Loop ]
 │
-├─► [ Pydantic Data Validation ]
-├─► [ Real-Time Alert Engine ]
+▼ (HTTP POST + Unique UUID Event Tracking)
+[ Container 2: Node.js/Express Ingestion Gateway ]
 │
-▼
-[ MongoDB Atlas (Cloud) ]
+┌────────────────┴────────────────┐
+▼ (Synchronous SQL Verification)  ▼ (Synchronous Network Proxy)
+[ Container 3: PostgreSQL DB ]    [ Container 4: Python/FastAPI Rules Engine ]
+│
+▼ (Low-Memory Aggregation Engine)
+[ Container 5: MongoDB LTS Storage ]
 
+1. **Client Emulation Layer (`simulator/`):** An isolated Python loop programmatically mimicking an active vehicle computer, broadcasting sensor readings paired with a unique tracking UUID (`event_id`) every 2 seconds.
+2. **Boundary Gatekeeper Layer (`ingestion-service/`):** A high-throughput Node.js Express server that intercepts inbound requests, verifies vehicle registration access tokens against relational database states, and synchronizes downstream execution streams using strict 5-second connection timeout limits.
+3. **Relational Auditing DB (`database/`):** A PostgreSQL node maintaining active authorized vehicle registries to enforce identity validation at the system network perimeter.
+4. **Analytical Rules Processing Layer (`analytics-service/`):** A Python FastAPI engine executing real-time thermal threshold rules (≥ 45.0°C ceiling) to catch battery over-heating risks, dynamically logging metadata tags before persistence.
+5. **NoSQL Persistence Tier:** A production-supported MongoDB 7.0 document cluster logging structural telemetry payloads securely.
 
-1. **The Client (`simulator.py`):** Programmatically simulates an onboard vehicle computer broadcasting metrics (Speed, State of Charge, Thermal readings) every 3 seconds.
-2. **The Gateway (`main.py`):** A secure FastAPI server that handles data validation and applies operational business logic rules.
-3. **The Database:** A remote cloud cluster logging time-stamped historical time-series logs.
+## ⚡ Production-Grade System Optimization Features
 
-## Core Technical Features
+* **Complete Fault-Cascading Error Propagation:** Eliminated false boundary acknowledgments by transforming the edge gateway into a synchronous proxy engine. Telemetry tracking status returns a `200 Success` only when the underlying NoSQL storage layer explicitly verifies a successful data save.
+* **Network Perimeter Isolation:** Stripped public ports entirely from internal computation modules. The analytical service is unreachable by external network hosts, routing query paths securely through an API Gateway Proxy structural interface.
+* **Transactional Idempotency Protection:** Enforced strict protection against duplicate network retry bursts. Telemetry streams generate a unique UUID per distinct physical sample reading, which is monitored by a `Unique Index Constraint` right inside MongoDB to reject duplicate writes at the data boundary without data corruption.
+* **Out-Of-Memory (OOM) Protection Matrix:** Optimized data summarization endpoints by entirely eliminating the load of massive document sets into application RAM. Calculated analytics are calculated natively within MongoDB using high-performance **Aggregation Pipelines** over a bounded 24-hour time window.
 
-* **Decoupled Architecture:** Eliminates dangerous client-to-database connections by routing all sensor tracking traffic through a secure intermediate API gateway layer.
-* **Strict Type Enforcement:** Leverages Pydantic schemas to dynamically audit and validate inbound JSON payload structures, dropping malformed payloads before they affect the storage tier.
-* **Real-Time Threat Detection:** Built-in threshold rule evaluation instantly monitors thermal readings, tagging records with a `CRITICAL_ALERT` operational flag if battery temps cross a 45°C safety ceiling.
-* **Cloud Persistence:** Seamless integration with MongoDB Atlas cluster databases, injecting automated server-side internal processing timestamps for audit tracing.
+## 🛠️ Unified System Component Topology
 
-## Tech Stack & Key Vocab
+* **Edge Transport Layer:** Node.js 20 (LTS Alpine Runtime Environment), Express Engine
+* **Computational Processing:** Python 3.10-slim, FastAPI Framework, Pydantic Schema Auditing
+* **Relational Storage Boundary:** PostgreSQL 15-Alpine Database Engine
+* **High-Velocity Document Vault:** MongoDB 7.0 (Production Long-Term Support Release)
+* **Mesh Orchestration Infrastructure:** Docker, Docker Compose (Isolated Internal Networks)
 
-* **Language:** Python 3
-* **Framework:** FastAPI, Uvicorn
-* **Database:** MongoDB Cloud (Atlas Platform), PyMongo
-* **Validation:** Pydantic Models
-* **Network Protocol:** REST Architecture (HTTP POST / GET Methods)
+## One-Command Local Grid Orchestration
 
-## Local Installation & Execution
-
-1. **Clone the repository:**
+1. **Ensure Docker Desktop is open and active in the background.**
+2. **Clone and enter the optimized mesh infrastructure folder:**
    ```bash
    git clone https://github.com
    cd ev-telemetry-backend
    ```
-
-2. **Install core dependencies:**
+3. **Boot up the entire multi-service microservices stack automatically:**
    ```bash
-   pip3 install fastapi uvicorn pymongo certifi requests
+   docker-compose up --build
    ```
 
-3. **Boot up the Ingestion API Gatekeeper Server:**
-   ```bash
-   python3 -m uvicorn main:app --reload
-   ```
+## Live Metrics & Verification Interfaces
 
-4. **Launch the Real-Time Vehicle Simulator Loop (In a separate terminal tab):**
-   ```bash
-   python3 simulator.py
-   ```
+With the Docker container cluster running in your environment, open your standard host browser window to access these secure gateway API proxy lookup routes:
 
+* **Query Latest Chronological History:** `http://localhost:3000/api/telemetry/history?limit=10`
+* **Fetch Bounded System Fleet Analytics:** `http://localhost:3000/api
